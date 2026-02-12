@@ -10,14 +10,35 @@ import {
 const router = express.Router();
 
 router.post('/sessions', async (req, res) => {
-  const { sessionId } = req.body;
+  const {
+    sessionId,
+    sourceGroupPrefix,
+    targetGroupPrefix
+  } = req.body;
 
   if (!sessionId) {
-    return res.status(400).json({ error: 'sessionId é obrigatório' });
+    return res.status(400).json({ error: 'sessionId obrigatório' });
+  }
+
+  // Configura os prefixos ANTES de iniciar a sessão
+  if (sourceGroupPrefix && targetGroupPrefix) {
+    updateSessionConfig(sessionId, {
+      sourceGroupPrefix,
+      targetGroupPrefix
+    });
+    console.log(`✅ Prefixos configurados para ${sessionId}:`);
+    console.log(`   📤 Origem: "${sourceGroupPrefix}"`);
+    console.log(`   📥 Destino: "${targetGroupPrefix}"`);
   }
 
   await startSession(sessionId);
-  res.json({ ok: true });
+
+  res.json({
+    message: 'Sessão criada',
+    sessionId,
+    sourceGroupPrefix,
+    targetGroupPrefix
+  });
 });
 
 router.delete('/sessions/:id', (req, res) => {
