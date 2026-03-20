@@ -23,7 +23,17 @@ export default class SessionController {
 
   listSessions = async (req, res) => {
     const sessions = await this.sessionService.listSessions();
-    return res.json(sessions);
+    
+    const total = sessions.length;
+    const active = sessions.filter(s => s.status).length;
+    const inactive = total - active;
+
+    return res.json({
+      total,
+      active,
+      inactive,
+      data: sessions
+    });
   };
 
   getQRCode = async (req, res) => {
