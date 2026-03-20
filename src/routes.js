@@ -6,8 +6,10 @@ import {
   getQRCode,
   updateSessionConfig
 } from './manager.js';
+import { makeSessionController } from './modules/session/session.module.js';
 
 const router = express.Router();
+const sessionController = makeSessionController();
 
 router.post('/sessions', async (req, res) => {
   const {
@@ -30,15 +32,9 @@ router.post('/sessions', async (req, res) => {
     console.log(`   📤 Origem: "${sourceGroupPrefix}"`);
     console.log(`   📥 Destino: "${targetGroupPrefix}"`);
   }
-
+  
   await startSession(sessionId);
-
-  res.json({
-    message: 'Sessão criada',
-    sessionId,
-    sourceGroupPrefix,
-    targetGroupPrefix
-  });
+  return sessionController.createSession(req, res)
 });
 
 router.delete('/sessions/:id', (req, res) => {
@@ -46,9 +42,7 @@ router.delete('/sessions/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/sessions', (req, res) => {
-  res.json({ sessions: listSessions() });
-});
+router.get('/sessions', sessionController.listSessions);
 
 router.get('/sessions/:id/qrcode', (req, res) => {
   const qr = getQRCode(req.params.id);
